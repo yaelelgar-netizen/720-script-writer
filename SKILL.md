@@ -1,19 +1,16 @@
 ---
-name: 720-script-writer
 description: >-
   Converts content from a "תבנית פיתוח תוכן ליעד" Word document into PPTX slides for a
-  720 / methodica training script — 7th-8th grade units across any subject (math, science,
-  etc.), not limited to a single project. Builds question segments (one PowerPoint Section per
-  question, all lettered sub-parts א/ב/ג under it) by cloning matching screen templates from the
-  dedicated `תבנית לתסריט.pptx` template library — never from the working script itself, and
-  never by fabricating shapes from scratch. Use when the user asks to build/generate/convert
-  slides for a specific question or section from content into a 720 script ("תבנה שקפים לסעיף...",
-  "המר את השלב הזה לתסריט", "תוסיף שאלה 2 לתסריט").
-  Stops and asks the user (does not build blind) whenever the required interaction type has no
-  matching template in the template library, or when the Word content is ambiguous about which
-  mechanism to use (e.g. dropdown vs. drag-and-drop for "השלמה מתוך מחסן").
-  Do NOT use for: reviewing/QA-ing an already-built script (that's 720-script-qa), generic PPTX
-  editing unrelated to 720 content conversion, or question banks in other formats (v.md).
+  720/methodica training script — 7th-8th grade units, any subject (math, science, etc.), not
+  project-specific. Builds question segments (one PowerPoint Section per question, lettered
+  sub-parts א/ב/ג) by cloning matching screen templates from the dedicated `תבנית לתסריט.pptx`
+  library — never from the working script itself, never by fabricating shapes. Use when asked to
+  build/generate/convert slides for a question or section into a 720 script ("תבנה שקפים לסעיף...",
+  "המר את השלב הזה לתסריט", "תוסיף שאלה 2 לתסריט"). Stops and asks (never builds blind) when the
+  interaction type has no matching template, or the Word content is ambiguous about mechanism
+  (e.g. dropdown vs. drag-and-drop for "השלמה מתוך מחסן"). Do NOT use for: QA-ing an already-built
+  script (720-script-qa), generic PPTX editing unrelated to 720 conversion, or question banks in
+  other formats (v.md).
 ---
 
 # 720-script-writer
