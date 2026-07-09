@@ -373,10 +373,13 @@ _BANNER_IMAGE_POS = (3.07, 0.46, 8.58, 0.61)  # identical placeholder banner acr
 PLACEHOLDER_MARKERS = [
     "למפתחת", "טקסט השאלה", "טקסט רמז", "טקסט משוב",
     "מקום לתמונה", "מקום לגיף", "מקום לוידיאו", "טקסט רץ", "טקסט H1",
-    # updated-library feedback placeholders. The '(למשל' suffix matters: the
-    # intentional first-attempt box 'משוב לאי הצלחה ראשון' (kept as-is by
-    # design) must NOT match.
+    # updated-library feedback placeholders.
     "משוב להצלחה (למשל", "משוב לאי הצלחה (למשל",
+    # SingleChoiceQuestion's extra first-attempt box — corrected 09/07/2026:
+    # no real script keeps this, clean_template_slide strips it
+    # unconditionally (strip_first_attempt_feedback_box); this marker exists
+    # only to flag it as residue on slides built before the correction.
+    "משוב לאי הצלחה ראשון",
 ]
 # "מסיח N" (a digit) is an unfilled placeholder; "מסיח א'" is real distractor
 # content ("distractor" is also normal vocabulary in feedback text) - a plain
@@ -450,6 +453,23 @@ def strip_optional_image_placeholder(slide):
     return removed
 
 
+def strip_first_attempt_feedback_box(slide):
+    """Remove SingleChoiceQuestion's extra 'משוב לאי הצלחה ראשון' box (default
+    boilerplate 'התשובה אינה נכונה במלואה.'). Originally catalogued as
+    template content to leave untouched — corrected by the user (09/07/2026):
+    there is no reason for a real script to ship an unfilled/generic
+    first-attempt feedback box alongside the real positive/negative ones, so
+    it is now stripped unconditionally like the other template-authoring
+    artifacts. Matched by exact top-level text, not position (position is
+    template-specific). Returns True if removed."""
+    removed = False
+    for sh in list(slide.shapes):
+        if sh.has_text_frame and sh.text_frame.text.strip().startswith("משוב לאי הצלחה ראשון"):
+            remove_shape(sh)
+            removed = True
+    return removed
+
+
 def clean_template_slide(slide):
     """Run the generic cleanups on a freshly cloned template slide, right
     after duplicate_slide_cross_file(), before filling in real content.
@@ -460,6 +480,7 @@ def clean_template_slide(slide):
         "developer_notes_removed": strip_developer_notes(slide),
         "banner_image_removed": strip_generic_banner_image(slide),
         "image_placeholder_removed": strip_optional_image_placeholder(slide),
+        "first_attempt_feedback_removed": strip_first_attempt_feedback_box(slide),
     }
 
 
@@ -1110,8 +1131,16 @@ def build_question(src_prs, dest_prs, spec):
             'scenario':    ['line 1', 'line 2'],  # one paragraph per string
             'instruction': 'א. כמה ... ?',        # gets bold+purple
             'hint':        'טקסט הרמז',
-            'feedback_positive': 'נכון!',          # or 'feedback_intro' with the
-            'feedback_negative': 'טעית, ...',      # ' / ' slash convention
+            'feedback_positive': 'נכון!',          # FIXED greeting, not from the
+                                                  # Word doc's "משוב:" text
+            'feedback_negative': 'טעית, ...',      # an OPENER from feedback-bank.md,
+                                                  # not the Word explanation itself
+            # NEVER dump the whole Word "משוב:" sentence into
+            # feedback_positive/feedback_negative/feedback_intro — it always
+            # renders bold (make_feedback_paras bolds the intro paragraph) and
+            # skips the required bank opener (checklist item 18). The actual
+            # verbatim explanation goes in feedback_lines below, bold only on
+            # the invariant-fact/final-result line (content-style-rules #8).
             'feedback_lines': [('detail', False), ('result', True)],  # optional
             # by type:
             'answer':     '140',                  # ValueInputQuestion
